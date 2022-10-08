@@ -1,75 +1,16 @@
-// Require the framework and instantiate it
-const fastify = require('fastify')({ logger: true });
-const mongoose = require('mongoose');
-const Project = require('./models/projects');
+const fastify = require('fastify')({ logger: false });
+
+const { find, all, create, update, del } = require('./controllers/projectController');
 const Task = require('./models/task');
+require('./db/connection');
 
-const conectionString = 'mongodb+srv://taller_user:ydgee0e3AeMPsBl3@cluster0.9wx4x.mongodb.net/fastifyTads';
+fastify.get('/', async (request, reply) => ({ hello: 'world' }));
 
-mongoose
-  .connect(conectionString, {
-    // useNewUrlParser: true,
-    // useCreateIndex: true,
-    // useFindAndModify: false,
-    // useUnifiedTopology: true,
-  })
-  .then((conn) => {
-    console.log('DB CONNECTED SUCCESSFULLY');
-  });
-
-// Declare a route
-fastify.get('/', async (request, reply) => {
-  return { hello: 'world' };
-});
-
-//all
-fastify.get('/projects', async (request, reply) => {
-  console.log(request.query);
-
-  const projects = await Project.find(request.query).populate('tasks');
-  reply.send({
-    ok: true,
-    data: projects,
-  });
-});
-
-// post
-fastify.post('/projects', async (req, reply) => {
-  // console.log(req.body);
-  const project = await Project.create(JSON.parse(req.body));
-  reply.send({
-    ok: true,
-    data: project,
-  });
-});
-
-// find
-fastify.get('/projects/:id', async (request, reply) => {
-  console.log(request.params);
-  const project = await Project.findOne({ _id: request.params.id });
-  reply.send({
-    ok: true,
-    data: project,
-  });
-});
-// update
-fastify.put('/projects/:id', async (request, reply) => {
-  console.log(request.params);
-  const project = await Project.updateOne({ _id: request.params.id }, JSON.parse(request.body));
-  reply.send({
-    ok: true,
-    message: 'Document updated successfully!',
-    data: project,
-  });
-});
-// DELETE
-fastify.delete('/projects/:id', async (request, reply) => {
-  await Project.deleteOne({ _id: request.params.id });
-  reply.send({
-    ok: true,
-    message: 'Document deleted successfully!',
-  });
-});
+fastify.get('/projects', all);
+fastify.post('/projects', create);
+fastify.get('/projects/:id', find);
+fastify.put('/projects/:id', update);
+fastify.delete('/projects/:id', del);
 
 // Tasks
 // post
@@ -95,7 +36,35 @@ fastify.get('/:projectId/tasks', async (request, reply) => {
     data: tasks,
   });
 });
-// Run the server!
+
+fastify.get('/location/near/:lat-:lng/radius/:r', function (request, reply) {
+  const params = request.params;
+  console.log(params);
+  return { yes: true };
+});
+
+fastify.route({
+  method: 'DELETE',
+  url: '/route-long-method',
+  schema: {
+    querystring: {
+      name: { type: 'string' },
+      excitement: { type: 'integer' },
+    },
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          hello: { type: 'string' },
+        },
+      },
+    },
+  },
+  handler: function (request, reply) {
+    reply.send({ hello: 'world hilaire' });
+  },
+});
+
 const start = async () => {
   try {
     await fastify.listen(8000);
@@ -104,4 +73,5 @@ const start = async () => {
     process.exit(1);
   }
 };
+
 start();
