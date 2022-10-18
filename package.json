@@ -4,13 +4,17 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon server"
+    "dev": "nodemon server",
+    "test": "node_modules/.bin/mocha --recursive"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "fastify": "^3.29.0",
-    "mongoose": "^6.3.3"
+    "loadtest": "^5.2.0",
+    "mocha": "^10.1.0",
+    "mongoose": "^6.3.3",
+    "should": "^13.2.3"
   }
 }
